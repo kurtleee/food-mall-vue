@@ -3,18 +3,17 @@
     <el-container class="container">
       <el-aside width="180px">
         <el-menu
-          default-active="1"
+          default-active="productIndex"
           class="el-menu-demo"
           text-color="#BFCBD9"
           active-text-color="#409EE0"
           background-color="#304156"
-        
           router
         >
           <el-menu-item index="1">用户管理</el-menu-item>
           <el-submenu index="2">
             <template slot="title">商品管理</template>
-            <el-menu-item index="2-1">商品列表</el-menu-item>
+            <el-menu-item index="productIndex">商品列表</el-menu-item>
             <el-menu-item index="2-2">分类列表</el-menu-item>
           </el-submenu>
           <el-submenu index="3">
@@ -33,14 +32,24 @@
         </el-menu>
       </el-aside>
       <el-main>
-        <el-header></el-header>
+        <el-header>
+          <Breadcrumb />
+        </el-header>
+        <router-view></router-view>
       </el-main>
     </el-container>
   </div>
 </template>
 
 <script>
-export default {};
+import Breadcrumb from '@/components/Breadcrumb.vue';
+
+export default {
+  name: 'App',
+  components: {
+    Breadcrumb
+  }
+};
 </script>
 
 <style>
@@ -52,5 +61,4 @@ export default {};
 .el-aside .el-submenu .el-menu-item {
  background-color: #1F2D3D !important;
 }
-
 </style>

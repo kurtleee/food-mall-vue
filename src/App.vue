@@ -4,6 +4,15 @@
   </div>
 </template>
 
+<script>
+
+
+export default {
+  name: 'App',
+
+};
+</script>
+
 <style>
 * {
   margin: 0;
@@ -13,7 +22,7 @@ html,
 body {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 /* 搜索栏样式 */
 .filter-container {
