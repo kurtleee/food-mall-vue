@@ -128,3 +128,9 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+#
+src/router/index.js
+vue.config.js
+src/main.js
+vue.config.js

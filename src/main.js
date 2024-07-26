@@ -5,14 +5,16 @@ import App from './App.vue'
 import router from './router'
 import axios from 'axios'   // 引入axios
 
-axios.interceptors.request.use(config => {
-  let jwt = localStorage.getItem('authorization');
-  if (jwt) {
-    config.headers.Authorization = jwt;
-  }
-  return config;
-  }
-)
+// axios.interceptors.request.use(config => {
+//   let jwt = localStorage.getItem('authorization');
+//   if (jwt) {
+//     config.headers.Authorization = jwt;
+//   }
+//   return config;
+//   }
+// )
+
+
 Vue.prototype.$axios = axios  // 全局注册axios
 
 
