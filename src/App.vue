@@ -18,11 +18,16 @@ export default {
   margin: 0;
   padding: 0;
 }
-html,
-body {
+html, body, #app {
   height: 100%;
-  width: 100%;
-  /* overflow: hidden; */
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 /* 搜索栏样式 */
 .filter-container {

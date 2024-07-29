@@ -1,6 +1,5 @@
 <template>
   <div class="app-container">
-
     <p class="breadcrumb-space"></p>
 
     <el-card class="filter-container" shadow="never">
@@ -93,6 +92,9 @@
         size="mini">
         新增商品
       </el-button>
+      
+    <!-- 这里是子路由渲染的位置 -->
+      <router-view></router-view>
     </el-card>
     <div class="table-container">
       <el-table ref="productTable"
@@ -193,9 +195,9 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
-        :page-size="listQuery.pageSize"
+        :page-size="listQuery.size"
         :page-sizes="[3,5, 10, 15]"
-        :current-page.sync="listQuery.pageNum"
+        :current-page.sync="listQuery.page"
         :total="total">
       </el-pagination>
     </div>
@@ -205,8 +207,6 @@
 <script>
 import axios from 'axios';
 import Breadcrumb from '@/components/Breadcrumb.vue';
-
-
 
 export default {
   name: 'ProductIndex',
@@ -252,21 +252,23 @@ export default {
       ],
       typeOptions: [],
       operates: [
-        { value: 'delete', label: '删除' }
+        { value: 'delete', label: '删除' },
+        { value: 'batchOn', label: '上架'},
+        { value: 'batchOff', label: '下架'},
+
       ]
     };
   },
- 
   methods: {
     handleStatusChange(row) {
       this.updateStatus(row);
     },
     updateStatus(row) {
-      this.$axios.post(`/api/admin/updateProductStatus`, { id: row.id, status: row.status  })
+      this.$axios.post(`/api/admin/updateProductStatus`, { id: row.id, status: row.status })
         .then(response => {
           if (response.data.code === 200) {
             this.$message.success('状态更新成功');
-            this.getList(); // 刷新列表
+            this.getList();
           } else {
             this.$message.error('状态更新失败');
           }
@@ -275,59 +277,41 @@ export default {
         });
     },
     getList() {
-  this.listLoading = true;
-
-
-  
-  // Create a copy of listQuery and remove empty strings
-  let queryParams = {...this.listQuery};
-  for (let key in queryParams) {
-    if (queryParams[key] === '') {
-      queryParams[key] = null; // 将空字符串替换为 null
-    }
-  }
-
-  // 包装请求数据
-  const requestData = {
-    page: queryParams.page,  // 确保page被正确传递
-    size: queryParams.size,
-    param: {
-      id: queryParams.id,
-      title: queryParams.title,
-      status: queryParams.status,
-      classification: queryParams.classification ? { id: queryParams.classification } : null,
-      minCurrentPrice: queryParams.minCurrentPrice,
-      maxCurrentPrice: queryParams.maxCurrentPrice,
-      minOriginalPrice: queryParams.minOriginalPrice,
-      maxOriginalPrice: queryParams.maxOriginalPrice,
-      type: queryParams.type ? { id: queryParams.type } : null
-    }
-  };
-
-  // 输出处理后的参数用于调试
-  console.log('Request Data:', requestData);
-
-  this.$axios.post('/api/admin/getProductList', requestData, {
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  .then(response => {
-    this.listLoading = false;
-    if (response.data.code === 200) {
-      this.list = response.data.data.content;
-      this.total = response.data.data.totalElements;
-    } else {
-      this.$message.error(response.data.msg);
-    }
-  }).catch(error => {
-    this.listLoading = false;
-    console.error("Error fetching list:s", error);
-    this.$message.error("数据加载失败");
-  });
-},
+      this.listLoading = true;
+      this.$axios.post('/api/admin/getProductList', {
+          page: this.listQuery.page,
+          size: this.listQuery.size,
+          param: {
+              id: this.listQuery.id || null,
+              title: this.listQuery.title || null,
+              status: this.listQuery.status || null,
+              classification: this.listQuery.classification ? { id: this.listQuery.classification } : null,
+              minCurrentPrice: this.listQuery.minCurrentPrice || null,
+              maxCurrentPrice: this.listQuery.maxCurrentPrice || null,
+              minOriginalPrice: this.listQuery.minOriginalPrice || null,
+              maxOriginalPrice: this.listQuery.maxOriginalPrice || null,
+              type: this.listQuery.type ? { id: this.listQuery.type } : null
+          }
+      }, {
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      })
+      .then(response => {
+          this.listLoading = false;
+          if (response.data.code === 200) {
+              this.list = response.data.data.resultList;
+              this.total = response.data.data.total;
+          } else {
+              this.$message.error(response.data.msg);
+          }
+      }).catch(error => {
+          this.listLoading = false;
+          this.$message.error("数据加载失败");
+      });
+  },
     handleSearchList() {
-      this.listQuery.pageNum = 1;
+      this.listQuery.page = 1;
       this.getList();
     },
     handleResetSearch() {
@@ -335,7 +319,7 @@ export default {
       this.getList();
     },
     handleAddProduct() {
-      this.$router.push({ name: 'addProduct' });
+      this.$router.push('/home/addProduct');
     },
     handleBatchOperate() {
       if (!this.operateType) {
@@ -364,6 +348,12 @@ export default {
           case 'delete':
             this.updateDeleteStatus(ids);
             break;
+          case 'batchOn':
+            this.updateBatchStatus(ids, 1); // 1 表示上架
+            break;
+          case 'batchOff':
+            this.updateBatchStatus(ids, 2); // 2 表示下架
+            break;
           default:
             break;
         }
@@ -371,20 +361,19 @@ export default {
       });
     },
     handleSizeChange(val) {
-  this.listQuery.page = 1; // 确保是page而不是pageNum
-  this.listQuery.size = val; // 确保是size而不是pageSize
-  this.getList();
-  },
-
-  handleCurrentChange(val) {
-    this.listQuery.page = val; // 确保是page而不是pageNum
-    this.getList();
-  },
+      this.listQuery.page = 1;
+      this.listQuery.size = val;
+      this.getList();
+    },
+    handleCurrentChange(val) {
+      this.listQuery.page = val;
+      this.getList();
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
     handleUpdateProduct(index, row) {
-      this.$router.push({ path: `/pms/updateProduct`, query: { id: row.id } });
+      this.$router.push({ path: `/home/updateProduct`, query: { id: row.id } });
     },
     handleDelete(index, row) {
       this.$confirm('是否要进行删除操作?', '提示', {
@@ -396,7 +385,7 @@ export default {
       });
     },
     updateDeleteStatus(ids) {
-      axios.post('/api/products/delete', ids)
+      axios.post('/api/admin/deleteProducts', ids)
         .then(() => {
           this.$message({
             message: '删除成功',
@@ -404,31 +393,58 @@ export default {
             duration: 1000
           });
           this.getList();
+        })
+        .catch(error => {
+          this.$message({
+            message: '删除失败',
+            type: 'error',
+            duration: 1000
+          });
+          console.error("Error deleting products:", error);
+        });
+    },
+    updateBatchStatus(ids, status) {
+      this.$axios.post('/api/admin/updateProductStatusBatch', { goodIds: ids, status: status })
+        .then(() => {
+          this.$message({
+            message: '操作成功',
+            type: 'success',
+            duration: 1000
+          });
+          this.getList();
+        })
+        .catch(error => {
+          this.$message({
+            message: '操作失败',
+            type: 'error',
+            duration: 1000
+          });
+          console.error("Error updating batch status:", error);
         });
     },
     formatDate(date) {
       if (!date) {
-        return null; // 你可以在这里返回任何你想显示的默认值
+        return null;
       }
       const d = new Date(date);
       if (isNaN(d.getTime())) {
-        return 'Invalid Date'; // 处理无效日期
+        return 'Invalid Date';
       }
       return d.toLocaleString();
     },
     getTypeOptions() {
-    this.$axios.get('/api/type/getTypeList')
-      .then(response => {
-        if (response.data.code === 200) {
-          this.typeOptions = response.data.data;
-        } else {
+      this.$axios.get('/api/type/getTypeList')
+        .then(response => {
+          if (response.data.code === 200) {
+            this.typeOptions = response.data.data;
+          } else {
+            this.$message.error('获取品类数据失败');
+          }
+        })
+        .catch(error => {
           this.$message.error('获取品类数据失败');
-        }
-      })
-      .catch(error => {
-        this.$message.error('获取品类数据失败');
-      });
-  },
+        });
+    },
   },
   created() {
     this.getList();
@@ -440,10 +456,9 @@ export default {
 <style>
 .app-container {
   background: #fff;
-  /* padding: 20px; */
-  overflow-y: auto; 
+  overflow-y: auto;
 }
-.filter-container, .operate-container, .top-container{
+.filter-container, .operate-container, .top-container {
   margin-bottom: 20px;
 }
 .table-container {
@@ -459,5 +474,14 @@ export default {
 .form-buttons {
   display: flex;
   justify-content: flex-end;
+}
+.batch-operate-container {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  margin-left: auto;
+}
+.search-button {
+  margin-left: 20px;
 }
 </style>
