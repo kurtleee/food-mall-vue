@@ -8,7 +8,7 @@
           text-color="#BFCBD9"
           active-text-color="#409EE0"
           background-color="#304156"
-        
+          style="border-right: none;"
           router
         >
           <el-menu-item index="1">用户管理</el-menu-item>
@@ -19,9 +19,9 @@
           </el-submenu>
           <el-submenu index="3">
             <template slot="title">订单管理</template>
-            <el-menu-item index="3-1">订单列表</el-menu-item>
+            <el-menu-item index="omsList">订单列表</el-menu-item>
           </el-submenu>
-          <el-menu-item index="4">仓库管理</el-menu-item>
+          <el-menu-item index="rmsList">仓库管理</el-menu-item>
           <el-menu-item index="5">分拣监控</el-menu-item>
           <el-menu-item index="6">配送监控</el-menu-item>
           <el-submenu index="7">
@@ -33,7 +33,15 @@
         </el-menu>
       </el-aside>
       <el-main>
-        <el-header></el-header>
+        <el-header>
+          <el-breadcrumb separator-class="el-icon-arrow-right">
+          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+          <el-breadcrumb-item>活动管理</el-breadcrumb-item>
+          <el-breadcrumb-item>活动列表</el-breadcrumb-item>
+          <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+        </el-breadcrumb>
+        </el-header>
+        <router-view></router-view>
       </el-main>
     </el-container>
   </div>
@@ -46,8 +54,12 @@ export default {};
 <style>
 .el-aside {
   background-color: #304156;
-  width: 100%;
   height: 100vh;
+  position: fixed;
+  z-index: 100;
+}
+.el-main {
+  margin-left: 180px;
 }
 .el-aside .el-submenu .el-menu-item {
  background-color: #1F2D3D !important;
