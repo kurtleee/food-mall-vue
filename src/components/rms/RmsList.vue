@@ -65,33 +65,33 @@
       <el-table ref="returnApplyTable" :data="list" style="width: 100%;" @selection-change="handleSelectionChange"
         v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column prop="name" label="仓库名称" width="180" align="center">
+        <el-table-column prop="name" label="仓库名称" align="center">
           <template></template>
         </el-table-column>
-        <el-table-column prop="city" label="所在城市" width="180" align="center">
+        <el-table-column prop="city" label="所在城市" align="center">
           <template></template>
         </el-table-column>
         <el-table-column prop="region" label="所在区域" align="center">
           <template></template>
         </el-table-column>
-        <el-table-column prop="address" label="仓库地址" width="180" align="center">
+        <el-table-column prop="address" label="仓库地址" align="center">
           <template></template>
         </el-table-column>
-        <el-table-column prop="area" label="仓库面积" width="180" align="center">
+        <el-table-column prop="area" label="仓库面积" align="center">
           <template></template>
         </el-table-column>
-        <el-table-column prop="communityCount" label="关联小区数" width="180" align="center">
+        <el-table-column prop="communityCount" label="关联小区数" align="center">
           <template></template>
         </el-table-column>
-        <el-table-column prop="deliverymanCount" label="骑手数" width="180" align="center">
+        <el-table-column prop="deliverymanCount" label="骑手数" align="center">
           <template></template>
         </el-table-column>
-        <el-table-column prop="sorterCount" label="分拣员数" width="180" align="center">
+        <el-table-column prop="sorterCount" label="分拣员数" align="center">
           <template></template>
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
-            <el-button size="mini" @click="registoryDetail(scope.row.id)">查看详情</el-button>
+            <el-button size="mini" @click="registoryDetail(scope.row)">查看详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -201,7 +201,7 @@ export default {
 
   methods: {
     registoryDetail(row){
-      this.$router.push({path:'/rmsDetail',query:{'id':row}});
+      this.$router.push({path:'/rmsDetail',query:{'repository':row}});
     },
     reset() {
       this.paramData.param.nameOrAddress = null,

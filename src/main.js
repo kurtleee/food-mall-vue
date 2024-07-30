@@ -7,7 +7,7 @@ import axios from 'axios'   // 引入axios
 
 axios.interceptors.request.use(config => {
   let jwt = localStorage.getItem('authorization');
-  if (jwt) {
+  if (true) {
     config.headers.Authorization = jwt;
   }
   return config;
