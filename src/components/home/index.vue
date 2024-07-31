@@ -8,7 +8,7 @@
           text-color="#BFCBD9"
           active-text-color="#409EE0"
           background-color="#304156"
-        
+          style="border-right: none;"
           router
         >
           <el-menu-item index="1">用户管理</el-menu-item>
@@ -22,8 +22,8 @@
             <el-menu-item index="3-1">订单列表</el-menu-item>
           </el-submenu>
           <el-menu-item index="4">仓库管理</el-menu-item>
-          <el-menu-item index="5">分拣监控</el-menu-item>
-          <el-menu-item index="6">配送监控</el-menu-item>
+          <el-menu-item index="sms-index">分拣监控</el-menu-item>
+          <el-menu-item index="dms-index">配送监控</el-menu-item>
           <el-submenu index="7">
             <template slot="title">权限中心</template>
             <el-menu-item index="7-1">角色管理</el-menu-item>
@@ -34,6 +34,7 @@
       </el-aside>
       <el-main>
         <el-header></el-header>
+        <router-view></router-view>
       </el-main>
     </el-container>
   </div>
@@ -48,6 +49,11 @@ export default {};
   background-color: #304156;
   width: 100%;
   height: 100vh;
+  position: fixed;
+  z-index: 100;
+}
+.el-main {
+  margin-left: 180px;
 }
 .el-aside .el-submenu .el-menu-item {
  background-color: #1F2D3D !important;

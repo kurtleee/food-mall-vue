@@ -13,7 +13,6 @@ html,
 body {
   height: 100%;
   width: 100%;
-  overflow: hidden;
 }
 /* 搜索栏样式 */
 .filter-container {
