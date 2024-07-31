@@ -1,37 +1,22 @@
 <template>
   <div>
     <!--未完成绑定-->
-    <div
-      style="width: 80%; margin: 0 auto; background-color:whitesmoke;padding: 20px; border-radius: 20px"
-    >
+    <div style="width: 80%; margin: 0 auto; background-color:whitesmoke;padding: 20px; border-radius: 20px">
       <el-form ref="form" :model="form" label-width="90px" label-position="left">
         <el-form-item label="仓库名称">
           <el-input v-model="repository.name"></el-input>
         </el-form-item>
         <el-form-item label="所在城市">
-          <el-select
-            class="input-width"
-            placeholder="全部"
-            clearable
-            @change="updateRegionOptions"
-            v-model="repository.city"
-          >
-            <el-option
-              v-for="item in cityOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
-            ></el-option>
+          <el-select class="input-width" placeholder="全部" clearable @change="updateRegionOptions"
+            v-model="repository.city">
+            <el-option v-for="item in cityOptions" :key="item.value" :label="item.label"
+              :value="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="所在地区">
           <el-select class="input-width" placeholder="全部" clearable v-model="repository.region">
-            <el-option
-              v-for="item in regionOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label"
-            ></el-option>
+            <el-option v-for="item in regionOptions" :key="item.value" :label="item.label"
+              :value="item.label"></el-option>
           </el-select>
         </el-form-item>
 
@@ -47,16 +32,11 @@
     </div>
     <br />
     <br />
-    <div
-      style="width: 80%; margin: 0 auto; background-color:whitesmoke;padding: 20px; border-radius: 20px"
-    >
+    <div style="width: 80%; margin: 0 auto; background-color:whitesmoke;padding: 20px; border-radius: 20px">
       <el-form ref="form" :model="form" label-width="90px" label-position="left">
         <el-form-item label="关联小区">
-          <el-input
-            style="width: 50%; margin-right: 20px"
-            placeholder="输入小区名称"
-            v-model="communityParam.param.name"
-          ></el-input>
+          <el-input style="width: 50%; margin-right: 20px" placeholder="输入小区名称"
+            v-model="communityParam.param.name"></el-input>
           <el-button type="primary" @click="getCommunityList">查询搜索</el-button>
           <el-button type="success" style="float: right;" @click="getAvailableCommunityList">新增小区</el-button>
         </el-form-item>
@@ -64,7 +44,7 @@
       <el-table :data="communities" border>
         <el-table-column prop="name" label="小区名称" align="center"></el-table-column>
         <el-table-column prop="name,region,city" label="小区地址" align="center">
-          <template slot-scope="scope">{{ scope.row.city+scope.row.region+scope.row.name }}</template>
+          <template slot-scope="scope">{{ scope.row.city + scope.row.region + scope.row.name }}</template>
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
@@ -72,11 +52,25 @@
           </template>
         </el-table-column>
       </el-table>
+      <div>
+        <el-pagination 
+        small 
+        background 
+        style="margin-left: 50%; transform:translateX(-40%)"
+        @size-change="handleSizeChangeCommunity" 
+        @current-change="handleCurrentChangeCommunity"
+          layout="total, sizes,prev, pager, next,jumper" 
+          :current-page.sync="communityParam.page"
+          :page-size="communityParam.size" 
+          :page-sizes="[2, 3, 5, 10, 15]" 
+          :total="communityParam.total">
+        </el-pagination>
+      </div>
       <el-dialog :visible.sync="communityVisible" title="新增小区">
         <el-table :data="communitiesAvailable" border>
           <el-table-column prop="name" label="小区名称" align="center"></el-table-column>
           <el-table-column prop="name,region" label="小区地址" align="center">
-            <template slot-scope="scope">{{ scope.row.region+scope.row.name }}</template>
+            <template slot-scope="scope">{{ scope.row.region + scope.row.name }}</template>
           </el-table-column>
           <el-table-column label="操作" align="center">
             <template slot-scope="scope">
@@ -88,16 +82,11 @@
     </div>
     <br />
     <br />
-    <div
-      style="width: 80%; margin: 0 auto; background-color:whitesmoke;padding: 20px; border-radius: 20px"
-    >
+    <div style="width: 80%; margin: 0 auto; background-color:whitesmoke;padding: 20px; border-radius: 20px">
       <el-form ref="form" :model="form" label-width="90px" label-position="left">
         <el-form-item label="配置骑手">
-          <el-input
-            style="width: 50%; margin-right: 20px"
-            placeholder="请输入骑手手机号/姓名"
-            v-model="deliverymanParam.param.nameOrPhone"
-          ></el-input>
+          <el-input style="width: 50%; margin-right: 20px" placeholder="请输入骑手手机号/姓名"
+            v-model="deliverymanParam.param.nameOrPhone"></el-input>
           <el-button type="primary" @click="getDeliverymanList">查询搜索</el-button>
           <el-button type="success" style="float: right;" @click="getAvailableDeliveryman">新增骑手</el-button>
         </el-form-item>
@@ -108,13 +97,25 @@
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <el-button type="text" @click="removeOrAddDeliveryman(scope.row)">移出</el-button>
-            <el-button
-              type="text"
-              @click="updateDeliveryman(scope.row)"
-            >{{ scope.row.status===1?"禁用":"启用" }}</el-button>
+            <el-button type="text" @click="updateDeliveryman(scope.row)">{{ scope.row.status === 1 ? "禁用" : "启用"
+              }}</el-button>
           </template>
         </el-table-column>
       </el-table>
+      <div>
+        <el-pagination 
+        small 
+        background 
+        style="margin-left: 50%; transform:translateX(-40%)"
+        @size-change="handleSizeChangeDeliveryman" 
+        @current-change="handleCurrentChangeDeliveryman"
+          layout="total, sizes,prev, pager, next,jumper" 
+          :current-page.sync="deliverymanParam.page"
+          :page-size="deliverymanParam.size" 
+          :page-sizes="[2, 3, 5, 10, 15]" 
+          :total="deliverymanParam.total">
+        </el-pagination>
+      </div>
       <el-dialog :visible.sync="deliverymanVisible" title="新增骑手">
         <el-table :data="deliverymenAvailable" border>
           <el-table-column prop="name" label="骑手姓名" align="center"></el-table-column>
@@ -129,16 +130,11 @@
     </div>
     <br />
     <br />
-    <div
-      style="width: 80%; margin: 0 auto; background-color:whitesmoke;padding: 20px; border-radius: 20px"
-    >
+    <div style="width: 80%; margin: 0 auto; background-color:whitesmoke;padding: 20px; border-radius: 20px">
       <el-form ref="form" :model="form" label-width="90px" label-position="left">
         <el-form-item label="配置分拣员">
-          <el-input
-            style="width: 50%; margin-right: 20px"
-            placeholder="请输入分拣员手机号/姓名"
-            v-model="sorterParam.param.nameOrPhone"
-          ></el-input>
+          <el-input style="width: 50%; margin-right: 20px" placeholder="请输入分拣员手机号/姓名"
+            v-model="sorterParam.param.nameOrPhone"></el-input>
           <el-button type="primary" @click="getSorterList">查询搜索</el-button>
           <el-button type="success" style="float: right;" @click="getAvailableSorter">新增分拣员</el-button>
         </el-form-item>
@@ -149,13 +145,25 @@
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <el-button type="text" @click="removeOrAddSorter(scope.row)">移出</el-button>
-            <el-button
-              type="text"
-              @click="updateSorter(scope.row)"
-            >{{ scope.row.status===1?"禁用":"启用" }}</el-button>
+            <el-button type="text" @click="updateSorter(scope.row)">{{ scope.row.status === 1 ? "禁用" : "启用"
+              }}</el-button>
           </template>
         </el-table-column>
       </el-table>
+      <div>
+        <el-pagination 
+        small 
+        background 
+        style="margin-left: 50%; transform:translateX(-40%)"
+        @size-change="handleSizeChange" 
+        @current-change="handleCurrentChange"
+          layout="total, sizes,prev, pager, next,jumper" 
+          :current-page.sync="sorterParam.page"
+          :page-size="sorterParam.size" 
+          :page-sizes="[2, 3, 5, 10, 15]" 
+          :total="sorterParam.total">
+        </el-pagination>
+      </div>
       <el-dialog :visible.sync="sorterVisible" title="新增分拣员">
         <el-table :data="sortersAvailable" border>
           <el-table-column prop="name" label="分拣员姓名" align="center"></el-table-column>
@@ -168,6 +176,7 @@
         </el-table>
       </el-dialog>
     </div>
+
   </div>
 </template>
 
@@ -265,6 +274,33 @@ export default {
     };
   },
   methods: {
+    handleSizeChangeDeliveryman(val){
+      this.deliverymanParam.page = 1;
+      this.deliverymanParam.size = val;
+      this.getDeliverymanList();
+    },
+    handleCurrentChangeCommunity(val){
+      this.deliverymanParam.page = val;
+      this.getDeliverymanList();
+    },
+    handleSizeChangeCommunity(val){
+      this.communityParam.page = 1;
+      this.communityParam.size = val;
+      this.getCommunityList();
+    },
+    handleCurrentChangeCommunity(val){
+      this.communityParam.page = val;
+      this.getCommunityList();
+    },
+    handleSizeChange(val) {
+      this.sorterParam.page = 1;
+      this.sorterParam.size = val;
+      this.getSorterList();
+    },
+    handleCurrentChange(val) {
+      this.sorterParam.page = val;
+      this.getSorterList();
+    },
     updateRegionOptions(cityValue) {
       console.log(cityValue);
       const selectedCity = this.cityOptions.find(
@@ -352,6 +388,7 @@ export default {
           this.getDeliverymanList();
           if (row.repositoryId != null) {
             this.getAvailableDeliveryman();
+            this.getDeliverymanList();
           }
         } else {
           this.$message.error(
@@ -406,6 +443,7 @@ export default {
           this.getSorterList();
           if (row.repositoryId != null) {
             this.getAvailableSorter();
+            this.getSorterList();
           }
         } else {
           this.$message.error(

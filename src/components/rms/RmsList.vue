@@ -60,11 +60,12 @@
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets"></i>
       <span>仓库列表</span>
+      <el-button style="float:right" type="primary" size="small" @click="repositoryVisible = true">
+        增加仓库
+      </el-button>
     </el-card>
     <div class="table-container">
-      <el-table ref="returnApplyTable" :data="list" style="width: 100%;" @selection-change="handleSelectionChange"
-        v-loading="listLoading" border>
-        <el-table-column type="selection" width="60" align="center"></el-table-column>
+      <el-table ref="returnApplyTable" :data="list" style="width: 100%;" v-loading="listLoading" border>
         <el-table-column prop="name" label="仓库名称" align="center">
           <template></template>
         </el-table-column>
@@ -98,11 +99,50 @@
     </div>
 
     <div class="pagination-container">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange"
-        layout="total, sizes,prev, pager, next,jumper" :current-page.sync="paramData.param.pageNum"
-        :page-size="paramData.param.pageSize" :page-sizes="[5, 10, 15]" :total="total">
+      <el-pagination 
+      background 
+      @size-change="handleSizeChange" 
+      @current-change="handleCurrentChange"
+        layout="total, sizes,prev, pager, next,jumper" 
+        :current-page.sync="paramData.param.pageNum"
+        :page-size="paramData.param.pageSize" 
+        :page-sizes="[5, 10, 15]" 
+        :total="total">
       </el-pagination>
     </div>
+
+    <!--添加模态框-->
+    <el-dialog :visible.sync="repositoryVisible" title="新增小区">
+      <el-form ref="form" :model="form" label-width="90px" label-position="left">
+        <el-form-item label="仓库名称">
+          <el-input v-model="repository.name"></el-input>
+        </el-form-item>
+        <el-form-item label="所在城市">
+          <el-select class="input-width" placeholder="全部" clearable @change="updateRegionOptions"
+            v-model="repository.city">
+            <el-option v-for="item in cityOptions" :key="item.value" :label="item.label"
+              :value="item.label"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="所在区域">
+          <el-select class="input-width" placeholder="全部" clearable v-model="repository.region">
+            <el-option v-for="item in regionOptions" :key="item.value" :label="item.label"
+              :value="item.label"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="仓库地址">
+          <el-input type="textarea" v-model="repository.address"></el-input>
+        </el-form-item>
+        <el-form-item label="仓库面积">
+          <el-input v-model="repository.area" placeholder="㎡"></el-input>
+        </el-form-item>
+        <el-button type="primary" @click="addrepository" style="float: right;">新增仓库</el-button>
+        <div style="clear: both;"></div>
+      </el-form>
+    </el-dialog>
+
+
   </div>
 </template>
 <script>
@@ -183,6 +223,7 @@ export default {
           ]
         }
       ],
+      repositoryVisible: false,
       selectedCity: "",
       regionOptions: [],
       pageNum: 1,
@@ -192,16 +233,27 @@ export default {
       handleMan: '',
       handleTime: '',
       value: '',
-      total:0,
+      total: 0,
       listLoading: false,
       multipleSelection: [],
       operateType: 1,
+      repository: {},
     }
   },
 
   methods: {
-    registoryDetail(row){
-      this.$router.push({path:'/rmsDetail',query:{'repository':row}});
+    addrepository() {
+      this.$axios.post("/api/repository/updateRepository",this.repository).then(resp => {
+        if (resp.data.code == 200) {
+          this.$message.success("添加成功");
+          this.getList();
+        } else {
+          this.$message.error("添加失败");
+        }
+      });
+    },
+    registoryDetail(row) {
+      this.$router.push({ path: '/rmsDetail', query: { 'repository': row } });
     },
     reset() {
       this.paramData.param.nameOrAddress = null,
@@ -237,9 +289,6 @@ export default {
         this.regionOptions = [];
       }
     },
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
-    },
     handleSearchList() {
       this.paramData.param.pageNum = 1;
       this.getList();
@@ -248,9 +297,6 @@ export default {
       this.paramData.param.pageNum = 1;
       this.paramData.param.pageSize = val;
       this.getList();
-    },
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
     },
     handleCurrentChange(val) {
       this.paramData.param.pageNum = val;
