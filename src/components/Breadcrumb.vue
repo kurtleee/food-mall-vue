@@ -1,24 +1,39 @@
 <template>
-  <el-breadcrumb separator="/">
-    <el-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="index">
-      <router-link :to="item.path">{{ item.name }}</router-link>
-    </el-breadcrumb-item>
-  </el-breadcrumb>
+  <div class="breadcrumb">
+    <span v-for="(crumb, index) in breadcrumbs" :key="index">
+      <router-link :to="crumb.path" v-if="index < breadcrumbs.length - 1">{{ crumb.meta.breadcrumb }}</router-link>
+      <span v-else>{{ crumb.meta.breadcrumb }}</span>
+      <span v-if="index < breadcrumbs.length - 1"> / </span>
+    </span>
+  </div>
 </template>
 
 <script>
 export default {
-  name: 'Breadcrumb',
   computed: {
-    breadcrumbItems() {
-      const routes = this.$route.matched;
-      return routes.map(route => {
-        return {
-          name: route.meta.title || route.name,
-          path: route.path
-        };
+    breadcrumbs() {
+      let matched = this.$route.matched;
+      let breadcrumbs = [];
+      matched.forEach(route => {
+        if (route.meta && route.meta.breadcrumb) {
+          breadcrumbs.push({
+            path: route.path,
+            meta: route.meta
+          });
+        }
       });
+      return breadcrumbs;
     }
   }
 };
 </script>
+
+<style>
+.breadcrumb {
+  padding: 10px 0;
+  font-size: 14px;
+}
+.breadcrumb span {
+  margin-right: 5px;
+}
+</style>
